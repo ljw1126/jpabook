@@ -39,6 +39,11 @@ public class Member {
     public Team getTeam() {
         return team;
     }
+/*
+    public void changeTeam(Team team) {
+        this.team = team;
+        team.getMembers().add(this); // Tip.양방향 연관관계일때, 연관관계 편의 메소드*
+    }*/
 
     public void setTeam(Team team) {
         this.team = team;
