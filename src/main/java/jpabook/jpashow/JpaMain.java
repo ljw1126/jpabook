@@ -8,6 +8,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
+import java.util.List;
 
 /**
  * ※ spring boot , jpa 사용시 속성명을 낙타표기법으로 잡으면, jpa는 '_'형태로 바꿔줌
@@ -58,11 +59,11 @@ public class JpaMain {
             em.clear();
 
             Member findMember = em.find(Member.class, member.getId()); //영속성 context의 1차 캐쉬에서 호출
-            System.out.println("findTeam = " + findMember.getTeam().getName());
+            List<Member> members = findMember.getTeam().getMembers();
 
-            //수정 예시
-            Team newTeam = em.find(Team.class, 2L); // 2L 팀이 있다고 가정하고
-            findMember.setTeam(newTeam); // setter로 바꾼 후 commit하면 dirty check 해서 update 날라감
+            for(Member m : members)
+                System.out.println("m = " + m.getUsername());
+
 
             tx.commit();
         }catch(Exception ex){
