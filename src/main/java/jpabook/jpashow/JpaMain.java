@@ -1,6 +1,8 @@
 package jpabook.jpashow;
 
 import jpabook.jpashow.domain.Member;
+import jpabook.jpashow.domain.Order;
+import jpabook.jpashow.domain.OrderItem;
 import jpabook.jpashow.domain.Team;
 import org.hibernate.boot.model.source.internal.hbm.XmlElementMetadata;
 
@@ -76,6 +78,19 @@ public class JpaMain {
                    -> ex. toString() , lombok 라이브러리
                    -> json 생성 라이브러리(Controller에 entity 반환 x 무한루프발생가능.., dto 로 변환해서 하는걸 추천)
             */
+
+            //실전예제2. 연관관계 매핑 시작
+            Order order = new Order();
+            /*
+                - 여기서 order에 orderItems에 대한 양방향 연관관계 안해도 됨(아무 문제 없음)
+                - 단방향만 있어도 개발가능(핵심*)
+                - 조회시 양방향관계 사용, 실전에서는 필요할때 양방향 사용 (ex.jqpl)
+             */
+            em.persist(order);
+
+            OrderItem orderItem = new OrderItem();
+            orderItem.setOrder(order);
+            em.persist(orderItem);
 
             tx.commit();
         }catch(Exception ex){

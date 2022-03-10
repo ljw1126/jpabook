@@ -1,6 +1,8 @@
 package jpabook.jpashow.domain;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 //Setter 는 아무데서나 남발 하면 유지보수성 나빠지므로 지양
 @Entity
@@ -13,12 +15,12 @@ public class Member {
     @Column(name ="USERNAME") // 이런 anotation은 db와 매핑하는 용도
     private String username;
 
-    /*@Column(name="TEAM_ID")
-    private Long teamId;*/
-
     @ManyToOne
     @JoinColumn(name="TEAM_ID")
     private Team team;
+
+    @OneToMany(mappedBy = "member")
+    private List<Order> orders = new ArrayList<>(); //보통 Member통해 Item조회 안함. Member_id로 Order 를 조회하지. 이건 강의용
 
     public Long getId() {
         return id;
