@@ -126,4 +126,149 @@ public class Member { // 일대다 양방향(억지로 한다면)
 
 ```
 
+## 일대일(1:1) 관계 
+- **일대일** 관계는 그 반대도 **일대일**
+- 주 테이블이나 대상 테이블 중에 외래 키 선택 가능 
+  - 주 테이블에 외래 키 
+  - 대상 테이블에 외래 키 
+- 외래 키에 데이터베이스 유니크 제약조건 추가
 
+#### 주 테이블에 외래키 양방향 
+- Member , Locker 테이블있을때 Fk가 Member에 있는 경우 
+- 다대일 양방향 매핑 처럼 **외래 키가 있는 곳이 연관관계의 주인** 
+- 반대편은 mappedBy 적용
+
+```java
+import javax.persistence.OneToOne;
+
+@Entity
+public class Member {
+  ..
+  @OneToOne
+  @JoinColumn(name = "LOCKER_ID")
+  private Locker locker;
+  ..
+}
+
+@Entity
+public class Locker {
+  ..
+  @OneToOne(mappedBy = "locker")
+  private Member member; // 일대일 양방향 , 읽기 전용
+  ..
+}
+
+```
+
+#### 일대일 : 대상 테이블에 외래 키 단방향 
+- 외래키가 Member가 아닌 Locker에 MEMBER_ID 있는 경우 
+  - 이런 단방향 관계는 JPA 지원 x 
+  - 단 양방향 관계는 지원
+    - Member에 Locker (FK) 두고 주인으로 하든, Locker에 Member(FK) 두고 주인으로 하든 
+    - 나중에 확장하는데(ex. 1:N , N: 1) 고려하는 요인이 될 수 있음 
+
+#### 일대일 정리  
+- 주 테이블에 외래키 설정하는 경우 
+  - 주 객체가 대상 객체의 참조를 가지는 것 처럼, 주 테이블에 외래 키를 두고 대상 테이블을 찾음 
+  - 객체 지향 개발자 선호 
+  - JPA 매핑 관리 
+  - 장점 : 주 테이블만 조회해도 대상 테이블에 데이터가 있는지 확인 가능 
+  - 단점 : 값이 없으면 외래 키에 null 허용 
+- 대상 테이블에 외래 키 
+  - 대상 테이블에 외래 키가 존재 
+  - 전통적인 DB 개발자 선호 
+  - 장점 : 주 테이블과 대상 테이블을 일대일에서 일대다 관계로 변경할 때 테이블 구조 유지 
+  - 단점 : 프록시 기능의 한계로 **지연 로딩으로 설정해도 항상 즉시 로딩됨**(뒤에 설명)
+
+> 🤔 음.. 주 테이블에 FK 있으면 확인 후 지연로딩 가능한데, 양방향 일대일 잡으면 JPA가 FK를 가지고 Locker를 바로 즉시 로딩해버린다는 말인데 ..
+
+## 다대다(N:M)  관계
+- 결론적으로 실무에서 쓰면 x 
+- 관계형 DB는 정규화된 테이블 2개로 다대다 관계 표현 x 
+- 연결 테이블을 추가해서 일대다, 다대일 관계로 풀어내야 함
+  - ex. Member와 Product 테이블 있을때 중간 테이블로 다대다 풀어야 함 
+- 객체는 컬렉션을 사용해서 객체 2개로 다대다 관계 가능 
+- **@ManyToMany** 사용
+- **@JoinTable** 로 연결 테이블 지정
+- 다대다 매핑 : 단방향, 양방향 가능 
+
+```java 
+@Entity
+public class Member{
+  ..
+  @ManyToMany
+  @JoinTable(name="MEMBER_PRODUCT")  // MEMBER_PRODUCT 이름의 중간 테이블 생성됨
+  private List<Product> products = new ArrayList<>();
+  ..
+}
+
+@Entity
+public class Product {
+
+    @Id
+    @GeneratedValue
+    private Long id;
+    private String name;
+
+    @ManyToMany(mappedBy="products")
+    private List<Member> members = new ArrayList<>();
+    
+}
+
+```
+
+#### 다대다 매핑의 한계 
+- 💩**편리해 보이지만 실무에서 사용 x** 
+- 연결 테이블이 단순히 연결만 하고 끝나지 않음 
+- 주문시간, 수량 같은 데이터가 들어 올 수 있음 → 중간 테이블에 컬럼 추가 x 💩 
+
+#### 다대다 한계 극복 
+- **연결 테이블용 엔티티 추가(연결 테이블을 엔티티로 승격)**
+- @ManyToMany💣 → **@OneToMany, @ManyToOne** 
+
+```java
+@Entity
+public class Member{
+  ..
+  @OneToMany(mappedBy = "member")
+  private List<MemberProduct> memberProducts = new ArrayList<>();
+  ..
+}
+
+@Entity
+public class MemberProduct { // (권장)중간 테이블이 엔티티로 승격!😎✨
+
+    @Id
+    @GeneratedValue
+    private Long id;  // 의미없는 값을 사용하길 권장(유연성)
+
+    //아니면 MEMBER_ID , PRODUCT_ID 두개 묵어서 PK,FK로 쓸는 것도 가능하나 경험 의거해 비추함 
+  
+    @ManyToOne
+    @JoinColumn(name="MEMBER_ID")
+    private Member member;
+
+    @ManyToOne
+    @JoinColumn(name="PRODUCT_ID")
+    private Product product;
+
+    // 추가 필드 
+    private int count;
+    private int price;
+    private LocalDateTime oderDateTime;
+}
+
+
+
+@Entity
+public class Product {
+  ..
+  @OneToMany(mappedBy = "product")
+  private List<MemberProduct> memberProducts = new ArrayList<>();
+  ..
+}
+
+```
+
+## 실전예제3 - 다양한 연관관계 매핑 
+- 배송 , 카테고리 추가 // ERD 참고  
