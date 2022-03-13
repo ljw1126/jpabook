@@ -35,8 +35,9 @@ public class Team {
      *   - (기준)여기서는 Member.team(다) 이 주인! 외래키가 있는 곳을 주인으로 정해라 !!
      *     반대로 하게 되면 성능이슈 있을 수 있어 나중 설명 ..
      */
-    @OneToMany(mappedBy = "team")      // Member class에 team에 mapping 되어 있다는 뜻
-    private List<Member> members = new ArrayList<>(); // null point 안뜨게 하는 관례
+    @OneToMany
+    @JoinColumn(name="TEAM_ID")
+    private List<Member> members = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -54,16 +55,4 @@ public class Team {
         this.name = name;
     }
 
-    public List<Member> getMembers() {
-        return members;
-    }
-
-    public void setMembers(List<Member> members) {
-        this.members = members;
-    }
-
-    public void addMember(Member member) {
-        member.setTeam(this);
-        members.add(member);
-    }
 }

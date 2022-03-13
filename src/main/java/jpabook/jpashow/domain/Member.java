@@ -15,13 +15,6 @@ public class Member {
     @Column(name ="USERNAME") // 이런 anotation은 db와 매핑하는 용도
     private String username;
 
-    @ManyToOne
-    @JoinColumn(name="TEAM_ID")
-    private Team team;
-
-    @OneToMany(mappedBy = "member")
-    private List<Order> orders = new ArrayList<>(); //보통 Member통해 Item조회 안함. Member_id로 Order 를 조회하지. 이건 강의용
-
     public Long getId() {
         return id;
     }
@@ -38,16 +31,4 @@ public class Member {
         this.username = username;
     }
 
-    public Team getTeam() {
-        return team;
-    }
-/*
-    public void changeTeam(Team team) {
-        this.team = team;
-        team.getMembers().add(this); // Tip.양방향 연관관계일때, 연관관계 편의 메소드*
-    }*/
-
-    public void setTeam(Team team) {
-        this.team = team;
-    }
 }
