@@ -1,32 +1,26 @@
 package jpabook.jpashow.domain;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
-//Setter 는 아무데서나 남발 하면 유지보수성 나빠지므로 지양
 @Entity
-public class Member {
+public class Delivery {
 
     @Id
     @GeneratedValue
-    @Column(name="MEMBER_ID")
+    @Column(name="DELIVERY_ID")
     private Long id;
 
-    @Column
-    private String name;
+    @OneToOne(mappedBy = "delivery") // 일대일 양방향
+    private Order order;
 
     @Column
     private String city;
-
     @Column
     private String street;
-
     @Column
     private String zipcode;
-
-    @OneToMany
-    private List<Order> orders = new ArrayList<>();
+    @Column
+    private DeliveryStatus status;
 
     public Long getId() {
         return id;
@@ -36,12 +30,12 @@ public class Member {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public Order getOrder() {
+        return order;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setOrder(Order order) {
+        this.order = order;
     }
 
     public String getCity() {
@@ -68,11 +62,11 @@ public class Member {
         this.zipcode = zipcode;
     }
 
-    public List<Order> getOrders() {
-        return orders;
+    public DeliveryStatus getStatus() {
+        return status;
     }
 
-    public void setOrders(List<Order> orders) {
-        this.orders = orders;
+    public void setStatus(DeliveryStatus status) {
+        this.status = status;
     }
 }

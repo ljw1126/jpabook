@@ -39,58 +39,6 @@ public class JpaMain {
         tx.begin();
 
         try {
-            // 양방향 매핑시 가장 많이 하는 실수 - 연관관계의 주인에 값을 입력하지 않음
-            Member member = new Member();
-            member.setUsername("member1");
-            em.persist(member); // Member에 team_id에 null 들어감
-
-            Team team = new Team();
-            team.setName("TeamA");
-            //team.getMembers().add(member); // 얘는 읽기 전용.. jpa에서 저장시 사용안함*
-            em.persist(team);
-
-            team.addMember(member); // 둘중 하나 편한데로 메서드 생성해서 하면됨. 무한 루프 발생 안되게끔..*
-
-            // 정상
-            Team teamB = new Team();
-            teamB.setName("TeamB");
-            em.persist(teamB);
-
-            Member member2 = new Member();
-            member2.setUsername("member2");
-            //member2.changeTeam(teamB); // 주인에 값이 들어감 (정상)*
-            em.persist(member2);
-
-            em.flush();
-            em.clear();
-
-            /*
-                case1.
-                 그런데 객체 지향 관계에서 team.getMembers().add(member)에 값을 넣는게 맞는 경우도 존재
-                em.flush(); em.clear(); 하지 않은 상태에서 team.getMembers() 호출시
-                1차 캐쉬에 실제 값이 없으므로..
-                case2.
-                 테스트 케이스 사용시
-                즉.
-                 양방향 사용시 순수 객체 상태를 고려해서 항상 양쪽에 값을 설정하자!
-                 - 연관관계 편의 메소드를 생성하자 -> Member에서 setTeam 할때 추가, 그리고 setter대신 메소드명으로 바꿔서 부각시키자
-                 - 양방향 매핑시에 무한 루프를 조심하자
-                   -> ex. toString() , lombok 라이브러리
-                   -> json 생성 라이브러리(Controller에 entity 반환 x 무한루프발생가능.., dto 로 변환해서 하는걸 추천)
-            */
-
-            //실전예제2. 연관관계 매핑 시작
-            Order order = new Order();
-            /*
-                - 여기서 order에 orderItems에 대한 양방향 연관관계 안해도 됨(아무 문제 없음)
-                - 단방향만 있어도 개발가능(핵심*)
-                - 조회시 양방향관계 사용, 실전에서는 필요할때 양방향 사용 (ex.jqpl)
-             */
-            em.persist(order);
-
-            OrderItem orderItem = new OrderItem();
-            orderItem.setOrder(order);
-            em.persist(orderItem);
 
             tx.commit();
         }catch(Exception ex){

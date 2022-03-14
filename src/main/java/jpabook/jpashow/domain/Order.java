@@ -1,38 +1,35 @@
 package jpabook.jpashow.domain;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(name="ORDERS")
 public class Order {
 
     @Id
     @GeneratedValue
-    @Column(name="ORDER_ID")
+    @Column(name ="ORDER_ID")
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name="MEMBER_ID")
+    @JoinColumn(name = "MEMBER_ID")
     private Member member;
 
-    @OneToMany(mappedBy = "order")
-    private List<OrderItem> orderItems = new ArrayList<>(); //Order에 OrderItem은 비지니스 적으로 의미 있을 수도 없을수도 있음
+    @OneToMany
+    @JoinColumn(name="ORDER_ITEM_ID") // 외래키 FK
+    private List<OrderItem> orderItems = new ArrayList<>();
 
-    private LocalDateTime orderDate; // hibernate에서 자동 매핑
+    @OneToOne
+    @JoinColumn(name="DELIVERY_ID") // 외래키 FK
+    private Delivery delivery;
 
-    @Enumerated(EnumType.STRING)
+    @Column
+    private Date orderDate;
+
+    @Column
     private OrderStatus status;
-
-    //연관메서드 예시
-    public void addOrderItem(OrderItem orderItem){
-        orderItems.add(orderItem);
-        orderItem.setOrder(this);
-    }
-
-    public Order(){}
 
     public Long getId() {
         return id;
@@ -58,11 +55,19 @@ public class Order {
         this.orderItems = orderItems;
     }
 
-    public LocalDateTime getOrderDate() {
+    public Delivery getDelivery() {
+        return delivery;
+    }
+
+    public void setDelivery(Delivery delivery) {
+        this.delivery = delivery;
+    }
+
+    public Date getOrderDate() {
         return orderDate;
     }
 
-    public void setOrderDate(LocalDateTime orderDate) {
+    public void setOrderDate(Date orderDate) {
         this.orderDate = orderDate;
     }
 
