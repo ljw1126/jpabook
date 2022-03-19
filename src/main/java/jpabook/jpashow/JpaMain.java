@@ -1,16 +1,12 @@
 package jpabook.jpashow;
 
-import jpabook.jpashow.domain.Member;
-import jpabook.jpashow.domain.Order;
-import jpabook.jpashow.domain.OrderItem;
-import jpabook.jpashow.domain.Team;
-import org.hibernate.boot.model.source.internal.hbm.XmlElementMetadata;
+import jpabook.jpashow.hellojpa.Item;
+import jpabook.jpashow.hellojpa.Movie;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
-import java.util.List;
 
 /**
  * ※ spring boot , jpa 사용시 속성명을 낙타표기법으로 잡으면, jpa는 '_'형태로 바꿔줌
@@ -39,6 +35,19 @@ public class JpaMain {
         tx.begin();
 
         try {
+            Movie movie = new Movie();
+            movie.setDirector("michel bay");
+            movie.setActor("john");
+            movie.setName("위대한 쇼");
+            movie.setPrice(10000);
+
+            em.persist(movie);
+
+            em.flush();
+            em.clear();
+
+            Item findItem = em.find(Item.class, movie.getId());
+            System.out.println(findItem);
 
             tx.commit();
         }catch(Exception ex){
