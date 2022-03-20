@@ -373,4 +373,83 @@ where
 
 > 논리모델을 객체 물리모델로 구현하는 방법 3가지에 대해 설명함(default join table로 하고 단일 테이블이랑 장단점 기억해뒀다가 상황봐서 선택하기)
 
-- 
+## @MappedSuperclass 
+- 공통 매핑 정보가 필요할 때 사용(ex. id, name) // ppt 이미지 참고 
+- 상속관계 매핑 x, 엔티티 x, 테이블과 매핑 x 
+- 부모 클래스를 상속받는 **자식 클래스에 매핑 정보만 제공**
+- 조회, 검색 불가(em.find(BaseEntity) 불가)
+- 직접 생성해서 사용할 일이 없으므로 **추상 클래스(abstract class) 권장**
+#### 문제 - 중복되는 필드가 있는 상황
+```
+@Entity
+public class Member{
+  ...
+  private String createddBy;
+  private LocalDateTime createdDate;
+  private String lastModifiedBy;
+  private LocalDateTime lastModifiedDate;
+  ...
+}
+
+@Entity
+public class Team{
+  ...
+  private String createddBy;
+  private LocalDateTime createdDate;
+  private String lastModifiedBy;
+  private LocalDateTime lastModifiedDate;
+  ...
+}
+
+// 다른 클래스도 공통 속성 추가하려니 더럽..
+```
+#### @MappedSuperclass 사용할 경우 
+```java 
+@MappedSuperclass    // 공통적으로 사용할 속성이다
+public abstract class BaseEntity{ // 실무에서 해당 클래스 만들면 유용함
+  private String createddBy;
+  private LocalDateTime createdDate;
+  private String lastModifiedBy;
+  private LocalDateTime lastModifiedDate;
+}
+
+@Entity
+public class Member extends BaseEntity { // "BaseEntity 의 필드 상속받는게 아니라 속성을 함께 쓰고 싶다."는 뜻 
+  ...
+}
+
+@Entity
+public class Team{
+  ...
+}
+
+```
+#### 실행시 create query 
+``` 
+Hibernate: 
+    create table Member (
+       id bigint not null,
+        createdBy varchar(255),
+        createdDate timestamp,
+        lastModifiedBy varchar(255),
+        lastModifiedDate timestamp,
+        name varchar(255),
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table Team (
+       id bigint not null,
+        createdBy varchar(255),
+        createdDate timestamp,
+        lastModifiedBy varchar(255),
+        lastModifiedDate timestamp,
+        name varchar(255),
+        primary key (id)
+    )
+```
+
+#### @MappedSuperclass 
+- 테이블과 관계 없고, 단순히 엔티티가 공통으로 사용하는 매핑 정보를 모으는 역할 
+- 주로 등록일, 수정일, 등록자, 수정자 같은 전체 엔티티에서 공통으로 적용하는 정보를 모을때 사용
+- 참고로 @Entity 클래스는 @Entity 나 @MappedSuperclass 로 지정한 클래스만 상속가능
