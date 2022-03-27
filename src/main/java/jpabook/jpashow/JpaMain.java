@@ -1,7 +1,5 @@
 package jpabook.jpashow;
 
-import jpabook.jpashow.hellojpa.Item;
-import jpabook.jpashow.hellojpa.Movie;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -35,19 +33,6 @@ public class JpaMain {
         tx.begin();
 
         try {
-            Movie movie = new Movie();
-            movie.setDirector("michel bay");
-            movie.setActor("john");
-            movie.setName("위대한 쇼");
-            movie.setPrice(10000);
-
-            em.persist(movie);
-
-            em.flush();
-            em.clear();
-
-            Item findItem = em.find(Item.class, movie.getId());
-            System.out.println(findItem);
 
             tx.commit();
         }catch(Exception ex){
