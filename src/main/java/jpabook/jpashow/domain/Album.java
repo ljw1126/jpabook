@@ -1,7 +1,7 @@
 package jpabook.jpashow.domain;
 
 import javax.persistence.Entity;
-
+@Deprecated
 @Entity
 public class Album extends Item{
 

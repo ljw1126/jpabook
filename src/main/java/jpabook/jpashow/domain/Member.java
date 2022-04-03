@@ -1,9 +1,7 @@
 package jpabook.jpashow.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 public class Member {
@@ -13,17 +11,25 @@ public class Member {
     @Column(name="MEMBER_ID")
     private Long id;
 
-    @Column
-    private String name;
+    @Column(name="USERNAME")
+    private String username;
 
-    @Column
-    private String city;
+    @Embedded
+    private Period workPeriod;
 
-    @Column
-    private String street;
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name="city",
+                    column=@Column(name="WORK_CITY")),
+            @AttributeOverride(name="street",
+                    column=@Column(name="WORK_STREET")),
+            @AttributeOverride(name="zipcode",
+                    column=@Column(name="WORK_ZIPCODE"))
+    })
+    private Address workAddress;
 
-    @Column
-    private String zipcode;
+    @Embedded
+    private Address homeAddress;
 
     public Long getId() {
         return id;
@@ -33,35 +39,27 @@ public class Member {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getUsername() {
+        return username;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    public String getCity() {
-        return city;
+    public Period getWorkPeriod() {
+        return workPeriod;
     }
 
-    public void setCity(String city) {
-        this.city = city;
+    public void setWorkPeriod(Period workPeriod) {
+        this.workPeriod = workPeriod;
     }
 
-    public String getStreet() {
-        return street;
+    public Address getWorkAddress() {
+        return workAddress;
     }
 
-    public void setStreet(String street) {
-        this.street = street;
-    }
-
-    public String getZipcode() {
-        return zipcode;
-    }
-
-    public void setZipcode(String zipcode) {
-        this.zipcode = zipcode;
+    public void setWorkAddress(Address workAddress) {
+        this.workAddress = workAddress;
     }
 }

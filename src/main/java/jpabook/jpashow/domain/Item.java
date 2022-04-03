@@ -3,7 +3,7 @@ package jpabook.jpashow.domain;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
-
+@Deprecated
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public abstract class Item {

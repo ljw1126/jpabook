@@ -1,7 +1,7 @@
 package jpabook.jpashow.domain;
 
 import javax.persistence.*;
-
+@Deprecated
 @Entity
 public class OrderItem {
 
