@@ -41,7 +41,7 @@ public class ValueMain {
     }
 }
 public class ValueMain {
-    public static void main(String[] args) {
+    public static void main(String[] args) { // 밑에서 String, Integer 대표 불변객체라 했는데.. 예시가 좀.. 임의 객체로 생각할 것 ! 
         Integer a = 10;
         Integer b = a; // reference 주소값 가져감
         // 여기에 특정 함수로 a 값 변경하면 b도 동일하게 값 출력됨.
@@ -209,6 +209,87 @@ public class Member {
   - Entity 에서 필드값을 null로 선언하면 다 null로 들어감 
 
 ### 3. 값 타입과 불변 객체 
+> 값 타입은 복잡한 객체 세상을 조금이라도 단순화하려고 만든 개념이다. 따라서 값 타입은 단순하고 안전하게 다룰 수 있어야 한다.
+#### 값 타입 공유 참조
+- 임베디드 타입 같은 값 타입을 여러 엔티티에서 공유하면 위험함 (side effect 발생 가능)
+  - 예제 그림 참고
+```java 
+          // 1. 공유 주소로 각각 insert 수행
+          Address address = new Address("city","street","1000");
+
+          Member member = new Member();
+          member.setUsername("member1");
+          member.setWorkAddress(address);
+          member.setWorkPeriod(new Period());
+          em.persist(member);
+
+          Member member2 = new Member();
+          member2.setUsername("member2");
+          member2.setWorkAddress(address); // 동일한걸 쓰면 compile level에서 막을 방법이 없음..
+          member2.setWorkPeriod(new Period());
+
+          em.persist(member2);
+
+          // 2. member1만 수행하고 싶은데, member2로 update됨 -> side effect , 찾기 힘듦 
+          member.getWorkAddress().setCity("newCity"); 
+```
+> 동시 수정을 의도할 수 있지만 값타입(임베디드 타입)으로 하면 안되고 Address가 Entity 타입이여야 한다 함(why?)
+
+#### 값 타입 복사 
+- 값 타입의 실제 인스턴스인 값을 공유하는 것은 위험 
+- 대신 값(인스턴스)를 복사해서 사용 
+  - address 를 사용하고 newAddress 를 만들어서 활용 
+```java 
+  // 1. 공유 주소로 각각 insert 수행
+  Address address = new Address("city","street","1000");
+  
+  Member member = new Member();
+  member.setUsername("member1");
+  member.setWorkAddress(address);
+  member.setWorkPeriod(new Period());
+  em.persist(member);
+  
+  // 값을 복사해서 사용하면 독립적으로 update 가능
+  Address copyAddress = new Address(address.getCity(), address.getStreet(), address.getZipcode());
+  
+  Member member2 = new Member();
+  member2.setUsername("member2");
+  member2.setWorkAddress(copyAddress);
+  member2.setWorkPeriod(new Period());
+  em.persist(member2);
+  
+  member.getWorkAddress().setCity("newCity"); // member만 "newCity" update됨 
+  
+```
+#### 객체 타입의 한계 
+- 항상 값을 복사해서 사용하면 공유 참조로 인해 발생하는 부작용을 피할 수 있다(side effect 회피)
+- 문제는 임베디드 타입처럼 **직접 정의한 값 타입은 자바의 기본 타입이 아니라 객체 타입**이다.
+- 자바 기본 타입에 값을 대입하면 값을 복사한다. 
+- **객체 타입은 참조 값(reference, 주소값)을 직접 대입하는 것을 막을 방법이 없다.**
+- **객체의 공유 참조는 피할 수 없다.( '=' 만있으면 다 넣을 수 있다.)**
+
+```java 
+#기본 타입(primitive type) 
+int a = 10;
+int b = a; // 기본 타입은 값을 복사 
+b = 4;   // 안전함 
+
+#객체타입 
+Address a = new Address("old");
+Address b = a; // 객체 타입은 참조(reference, 주소값)를 전달
+b.setCity("new");   // 안전하지 못함.. 주소값을 가지고 있어서 한 instance 갱신되니 둘다 갱신 
+```
+
+#### 불변 객체 
+- 객체 타입을 수정할 수 없게 만들면 **부작용을 원천 차단**
+- **값 타입은 불변 객체(immutable object)로 설계해야함**
+- **불변 객체 : 생성 시점 이후 절대 값을 변경할 수 없는 객체**
+- 생성자로만 값을 설정하고 수정자(Setter)를 만들지 않으면 됨 --------- private 로 만들거나, 상황에 따라 선택 ( 해본 거네 ) 
+- 참고 : Integer, String 은 자바가 제공하는 대표적인 불변 객체**
+
+> Address 객체 값을 수정해야 할때는 ? Address 객체를 새로 만들어서(or copy) 통으로 바꿔버리는게 맞음 
+
+> '불변이라는 작은 제약으로 부작용(side effect)이라는 큰 재앙을 막을 수 있다.'
 
 ### 4. 값 타입의 비교 
 

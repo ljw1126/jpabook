@@ -35,13 +35,26 @@ public class JpaMain {
         tx.begin();
 
         try {
+            // 1. 공유 주소로 각각 insert 수행
+            Address address = new Address("city","street","1000");
 
             Member member = new Member();
-            member.setUsername("hello");
-            member.setWorkAddress(new Address("city","street","zipcode"));
+            member.setUsername("member1");
+            member.setWorkAddress(address);
             member.setWorkPeriod(new Period());
-
             em.persist(member);
+
+            // 값을 복사해서 사용하면 독립적으로 update 가능
+            Address copyAddress = new Address(address.getCity(), address.getStreet(), address.getZipcode());
+
+            Member member2 = new Member();
+            member2.setUsername("member2");
+            member2.setWorkAddress(copyAddress);
+            member2.setWorkPeriod(new Period());
+            em.persist(member2);
+
+            member.getWorkAddress().setCity("newCity");
+
 
             tx.commit();
         }catch(Exception ex){
