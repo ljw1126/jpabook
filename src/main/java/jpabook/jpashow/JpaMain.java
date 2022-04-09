@@ -7,6 +7,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
+import java.util.List;
+import java.util.Set;
 
 /**
  * ※ spring boot , jpa 사용시 속성명을 낙타표기법으로 잡으면, jpa는 '_'형태로 바꿔줌
@@ -35,27 +37,50 @@ public class JpaMain {
         tx.begin();
 
         try {
-            // 1. 공유 주소로 각각 insert 수행
-            Address address = new Address("city","street","1000");
 
             Member member = new Member();
             member.setUsername("member1");
-            member.setWorkAddress(address);
-            member.setWorkPeriod(new Period());
+            member.setHomeAddress(new Address("city1", "street", "zipcode"));
+
+            member.getFavoriteFoods().add("치킨");
+            member.getFavoriteFoods().add("족팔");
+            member.getFavoriteFoods().add("피자");
+
+            member.getAddressHistory().add(new AddressEntity("old1","street","zipcode")); // 값타입이 엔티티로 승급한다고 표현함
+            member.getAddressHistory().add(new AddressEntity("old2","street","zipcode"));
+
             em.persist(member);
 
-            // 값을 복사해서 사용하면 독립적으로 update 가능
-            Address copyAddress = new Address(address.getCity(), address.getStreet(), address.getZipcode());
+            em.flush();
+            em.clear();
+            //DB에 저장되어 있고, 영속성 컨텍스트는 비어있는 상태
+            Member findMember = em.find(Member.class, member.getId()); // select MEMBER 만 나감( 값 타입 컬렉션은 지연로딩)
 
-            Member member2 = new Member();
-            member2.setUsername("member2");
-            member2.setWorkAddress(copyAddress);
-            member2.setWorkPeriod(new Period());
-            em.persist(member2);
+           /* List<AddressEntity> addressHistory = findMember.getAddressHistory();
+            for (AddressEntity address : addressHistory) {
+                System.out.println("address = " + address.getCity()); // 지연로딩
+            }
 
-            member.getWorkAddress().setCity("newCity");
+            Set<String> favoriteFoods = findMember.getFavoriteFoods();
+            for (String favoriteFood : favoriteFoods) {
+                System.out.println("favoriteFood = " + favoriteFood); // 지연로딩
+            }
 
+            //수정 homeCity -> newCity
+            //findMember.getHomeAddress().setCity("newCity"); // 값 타입은 immutable 해야 해서 private 하거나 setter 생성 x(side effect 발생가능) .. 이유 다시 공부하기
 
+            //(중요)값타입은 인스턴스 새로 만들어서 완전히 갈아 끼워야함 !!
+            Address address = findMember.getHomeAddress();
+            findMember.setHomeAddress(new Address("newCity", address.getStreet(), address.getZipcode())); // update 문 나감
+
+            //치킨 -> 한식 , 값타입이니 통으로 갈아끼워야 함
+            findMember.getFavoriteFoods().remove("치킨"); // delete 문 나감
+            findMember.getFavoriteFoods().add("한식"); // insert 문 나감, MEMBER 소속의 값이고 생명주기 과
+
+            // equals() 와 hashCode()구현 꼭 해주기 ! -> 컬렉션에서 해당 메소드로 객체찾음
+            findMember.getAddressHistory().remove(new AddressEntity("old1","street","zipcode")); // delete 문 실행
+            findMember.getAddressHistory().add(new AddressEntity("newCity","street","zipcode")); // insert 문 실행, 근데 old2가 살아있어서 old2, newCity insert 문 총 2개 실행됨!!
+*/
             tx.commit();
         }catch(Exception ex){
             tx.rollback();
