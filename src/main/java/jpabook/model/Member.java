@@ -63,4 +63,12 @@ public class Member {
     public void setAddress(Address address) {
         this.address = address;
     }
+
+    public void update(String name) {
+        if (name == null || name.isBlank()) {
+            return;
+        }
+
+        this.name = name;
+    }
 }
