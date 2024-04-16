@@ -19,6 +19,8 @@ public class Member {
     @Column(name = "member_id")
     private Long id;
 
+    private String name;
+
     @Embedded
     private Address address;
 
@@ -28,8 +30,9 @@ public class Member {
     public Member() {
     }
 
-    public Member(Long id, Address address) {
+    public Member(Long id, String name, Address address) {
         this.id = id;
+        this.name = name;
         this.address = address;
     }
 
@@ -37,7 +40,27 @@ public class Member {
         return id;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public Address getAddress() {
         return address;
+    }
+
+    public List<Order> getOrders() {
+        return orders;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
     }
 }
