@@ -6,11 +6,16 @@ import jpabook.model.Member;
 import jpabook.service.MemberService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 @RestController
 public class MemberApiController {
@@ -19,6 +24,21 @@ public class MemberApiController {
 
     public MemberApiController(MemberService memberService) {
         this.memberService = memberService;
+    }
+
+    @GetMapping("/api/v1/members")
+    public List<Member> memberV1() {
+        return memberService.findAll();
+    }
+
+    @GetMapping("/api/v2/members")
+    public Result<List<MemberDto>> memberV2() {
+        List<MemberDto> memberDtos = memberService.findAll()
+                .stream()
+                .map(Member::getName)
+                .map(MemberDto::new)
+                .collect(toList());
+        return new Result<>(memberDtos.size(), memberDtos);
     }
 
     @PostMapping("/api/v1/members")
@@ -39,6 +59,19 @@ public class MemberApiController {
         memberService.update(id, request.getName());
         Member member = memberService.findById(id);
         return new UpdateMemberResponse(member);
+    }
+
+    @Data
+    @AllArgsConstructor
+    static class Result<T> {
+        private int size;
+        private T data;
+    }
+
+    @Data
+    @AllArgsConstructor
+    static class MemberDto {
+        private String name;
     }
 
     @Data
