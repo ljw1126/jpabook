@@ -3,6 +3,8 @@ package jpabook.model;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -18,12 +20,16 @@ public class Delivery {
     @Embedded
     private Address address;
 
+    @Enumerated(EnumType.STRING)
+    private DeliveryStatus status;
+
     public Delivery() {
     }
 
-    public Delivery(Long id, Address address) {
+    public Delivery(Long id, Address address, DeliveryStatus status) {
         this.id = id;
         this.address = address;
+        this.status = status;
     }
 
     public Long getId() {
@@ -32,5 +38,9 @@ public class Delivery {
 
     public Address getAddress() {
         return address;
+    }
+
+    public DeliveryStatus getStatus() {
+        return status;
     }
 }
