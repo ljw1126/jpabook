@@ -2,6 +2,9 @@ package jpabook.model.item;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import jpabook.model.Category;
+
+import java.util.List;
 
 @Entity
 @DiscriminatorValue("B") // dtype = "M"
@@ -12,8 +15,13 @@ public class Book extends Item {
     public Book() {
     }
 
-    public Book(Long id, Long price, Long stockQuantity, String author, String isbn) {
-        super(id, price, stockQuantity);
+    public Book(String author, String isbn) {
+        this.author = author;
+        this.isbn = isbn;
+    }
+
+    public Book(Long id, String name, int price, int stockQuantity, List<Category> categories, String author, String isbn) {
+        super(id, name, price, stockQuantity, categories);
         this.author = author;
         this.isbn = isbn;
     }
@@ -33,4 +41,6 @@ public class Book extends Item {
     public void setIsbn(String isbn) {
         this.isbn = isbn;
     }
+
+
 }

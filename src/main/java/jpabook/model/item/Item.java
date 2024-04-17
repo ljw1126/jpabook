@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.ManyToMany;
+import jpabook.exception.NotEnoughStockException;
 import jpabook.model.Category;
 
 import java.util.ArrayList;
@@ -24,32 +25,74 @@ public abstract class Item {
     @Column(name = "item_id")
     private Long id;
 
-    private Long price;
+    private String name;
+
+    private int price;
 
     @Column(name = "stock_quantity")
-    private Long stockQuantity;
+    private int stockQuantity;
 
     @ManyToMany(mappedBy = "items")
     private List<Category> categories = new ArrayList<>();
-    
+
     protected Item() {
     }
 
-    protected Item(Long id, Long price, Long stockQuantity) {
+    protected Item(Long id, String name, int price, int stockQuantity, List<Category> categories) {
         this.id = id;
+        this.name = name;
         this.price = price;
         this.stockQuantity = stockQuantity;
+        this.categories = categories;
+    }
+
+    public void removeStock(int quantity) {
+        int restStock = this.stockQuantity - quantity;
+        if (restStock < 0) {
+            throw new NotEnoughStockException("재고 수량이 부족합니다");
+        }
+
+        this.stockQuantity = restStock;
     }
 
     public Long getId() {
         return id;
     }
 
-    public Long getPrice() {
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getPrice() {
         return price;
     }
 
-    public Long getStockQuantity() {
+    public void setPrice(int price) {
+        this.price = price;
+    }
+
+    public int getStockQuantity() {
         return stockQuantity;
     }
+
+    public void setStockQuantity(int stockQuantity) {
+        this.stockQuantity = stockQuantity;
+    }
+
+    public List<Category> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(List<Category> categories) {
+        this.categories = categories;
+    }
+
 }
