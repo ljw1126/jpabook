@@ -50,6 +50,15 @@ public class OrderApiController {
         return orders.stream().map(OrderDto::new).collect(toList());
     }
 
+    /**
+     * fetch join으로 성능 개선
+     */
+    @GetMapping("/api/v3/orders")
+    public List<OrderDto> ordersV3() {
+        List<Order> orders = orderRepository.findAllWithItem();
+        return orders.stream().map(OrderDto::new).collect(toList());
+    }
+
     @Getter
     @Setter
     static class OrderDto {
