@@ -106,6 +106,10 @@ public class Order {
         return orderDate;
     }
 
+    public List<OrderItem> getOrderItems() {
+        return orderItems;
+    }
+
     public void setId(Long id) {
         this.id = id;
     }
