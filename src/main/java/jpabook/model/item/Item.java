@@ -27,7 +27,7 @@ public abstract class Item {
 
     private String name;
 
-    private int price;
+    private long price;
 
     @Column(name = "stock_quantity")
     private int stockQuantity;
@@ -38,7 +38,11 @@ public abstract class Item {
     protected Item() {
     }
 
-    protected Item(Long id, String name, int price, int stockQuantity, List<Category> categories) {
+    protected Item(Long id, String name, long price, int stockQuantity) {
+        this(id, name, price, stockQuantity, new ArrayList<>());
+    }
+
+    protected Item(Long id, String name, long price, int stockQuantity, List<Category> categories) {
         this.id = id;
         this.name = name;
         this.price = price;
@@ -71,7 +75,7 @@ public abstract class Item {
         this.name = name;
     }
 
-    public int getPrice() {
+    public long getPrice() {
         return price;
     }
 

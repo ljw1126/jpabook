@@ -12,8 +12,8 @@ public class Album extends Item {
     public Album() {
     }
 
-    public Album(Long id, Long price, Long stockQuantity, String artist, String etc) {
-        super(id, price, stockQuantity);
+    public Album(Long id, String name, long price, int stockQuantity, String artist, String etc) {
+        super(id, name, price, stockQuantity);
         this.artist = artist;
         this.etc = etc;
     }
